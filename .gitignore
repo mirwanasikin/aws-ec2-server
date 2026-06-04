@@ -1,0 +1,3 @@
+# Ignore unecessary item
+.terraform
+terraform.tfvars

@@ -1,0 +1,6 @@
+packages:
+  - vim
+  - docker
+  - tmux
+  - make
+  - python3-pip
