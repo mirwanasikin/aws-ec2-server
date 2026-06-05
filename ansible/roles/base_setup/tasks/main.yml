@@ -1,9 +1,11 @@
 - name: Update Packages
   ansible.builtin.dnf:
+    update_cache: true
     name: "*"
     state: latest
+  # noqa: package-latest
 
 - name: Install Necessary Packages
   ansible.builtin.dnf:
-    name: "{{ packages }}"
+    name: "{{ base_setup_packages }}"
     state: present

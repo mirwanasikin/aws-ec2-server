@@ -1,4 +1,7 @@
 resource "aws_security_group" "sg_server" {
+  #checkov:skip=CKV_AWS_260:Port 80 open intentionally for web traffic
+  #checkov:skip=CKV2_AWS_5:SG attached to EC2 via vpc_security_group_ids, checkov false positive
+  #checkov:skip=CKV2_AWS_12:Default SG managed separately
   name        = "${var.environment}-security-group"
   description = "Security Group for Instance"
   vpc_id      = var.vpc_id
@@ -20,6 +23,7 @@ resource "aws_security_group" "sg_server" {
   }
 
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = -1

@@ -1,4 +1,5 @@
-- hosts: all
+- name: Base Server Setup
+  hosts: aws_ec2
   gather_facts: true
   become: true
 
