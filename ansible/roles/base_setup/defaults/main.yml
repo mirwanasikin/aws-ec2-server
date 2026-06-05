@@ -1,6 +1,7 @@
-packages:
+base_setup_packages:
   - vim
   - docker
   - tmux
   - make
+  - htop
   - python3-pip

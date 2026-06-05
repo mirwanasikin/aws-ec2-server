@@ -1,5 +1,7 @@
 # VPC setup
 resource "aws_vpc" "main" {
+  #checkov:skip=CKV2_AWS_11:Flow logs not required for dev/learning environment
+  #checkov:skip=CKV2_AWS_12:Default SG restriction not managed in this module
   cidr_block = var.vpc_cidr
 
   tags = {
@@ -9,6 +11,7 @@ resource "aws_vpc" "main" {
 
 # Public Subnet
 resource "aws_subnet" "public" {
+  #checkov:skip=CKV_AWS_130:Public subnet intentionally assigns public IP for web server
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
   map_public_ip_on_launch = true
