@@ -3,9 +3,12 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "public_subnet_cidr" {
+variable "public_subnets" {
   description = "CIDR for Public Subnet"
-  type        = string
+  type = map(object({
+    cidr = string
+    az   = string
+  }))
 }
 
 variable "environment" {
@@ -13,7 +16,3 @@ variable "environment" {
   type        = string
 }
 
-variable "availability_zone" {
-  description = "Zone for Subnet"
-  type        = string
-}

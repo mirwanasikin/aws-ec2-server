@@ -5,7 +5,7 @@ variable "environment" {
 
 variable "public_subnet_id" {
   description = "Public Subnet for EC2"
-  type        = string
+  type        = map(string)
 }
 
 variable "security_group_id" {
@@ -21,5 +21,6 @@ variable "iam_instance_profile" {
 variable "instances" {
   type = map(object({
     instance_type = string
+    az            = string
   }))
 }

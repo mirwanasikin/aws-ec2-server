@@ -21,13 +21,15 @@ resource "aws_default_security_group" "default" {
 
 # Public Subnet
 resource "aws_subnet" "public" {
+  #checkov:skip=CKV_AWS_130:Public IP required for Cloudflare reverse proxy access
+  for_each                = var.public_subnets
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr
-  map_public_ip_on_launch = false
-  availability_zone       = var.availability_zone
+  cidr_block              = each.value.cidr
+  availability_zone       = each.value.az
+  map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.environment}-public-subnet"
+    Name = "${var.environment}-public-subnet-${each.key}"
   }
 }
 
@@ -51,6 +53,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
+  for_each       = aws_subnet.public
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }
