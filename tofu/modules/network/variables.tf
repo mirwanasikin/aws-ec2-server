@@ -13,3 +13,7 @@ variable "environment" {
   type        = string
 }
 
+variable "availability_zone" {
+  description = "Zone for Subnet"
+  type        = string
+}

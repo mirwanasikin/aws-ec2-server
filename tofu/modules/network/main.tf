@@ -1,21 +1,30 @@
 # VPC setup
 resource "aws_vpc" "main" {
   #checkov:skip=CKV2_AWS_11:Flow logs not required for dev/learning environment
-  #checkov:skip=CKV2_AWS_12:Default SG restriction not managed in this module
-  cidr_block = var.vpc_cidr
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 
   tags = {
     Name = "${var.environment}-vpc"
   }
 }
 
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.main.id
+
+  # no ingress, no egress = completely locked down
+  tags = {
+    Name = "${var.environment}-security-do-not-save"
+  }
+}
+
 # Public Subnet
 resource "aws_subnet" "public" {
-  #checkov:skip=CKV_AWS_130:Public subnet intentionally assigns public IP for web server
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
-  map_public_ip_on_launch = true
-  availability_zone       = "ap-southeast-1a"
+  map_public_ip_on_launch = false
+  availability_zone       = var.availability_zone
 
   tags = {
     Name = "${var.environment}-public-subnet"
