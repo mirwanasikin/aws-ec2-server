@@ -5,5 +5,5 @@ output "vpc_id" {
 
 # Output for Subnet so other Module can import
 output "subnet_id" {
-  value = aws_subnet.public.id
+  value = { for k, v in aws_subnet.public : k => v.id }
 }
