@@ -13,6 +13,11 @@ variable "public_subnet_cidr" {
   type        = string
 }
 
+variable "availability_zone" {
+  description = "Zone for Subnet"
+  type        = string
+}
+
 variable "ansible_bucket_name" {
   description = "Ansible Bucket for SSM"
   type        = string
@@ -23,7 +28,9 @@ variable "ssm_role" {
   type        = string
 }
 
-variable "instance_type" {
-  type    = string
-  default = "t3.micro"
+variable "instances" {
+  description = "Instance Type"
+  type = map(object({
+    instance_type = string
+  }))
 }

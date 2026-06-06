@@ -3,11 +3,6 @@ variable "environment" {
   type        = string
 }
 
-variable "instance_type" {
-  description = "Instance Type for EC2"
-  type        = string
-}
-
 variable "public_subnet_id" {
   description = "Public Subnet for EC2"
   type        = string
@@ -21,4 +16,10 @@ variable "security_group_id" {
 variable "iam_instance_profile" {
   description = "IAM role for SSM"
   type        = string
+}
+
+variable "instances" {
+  type = map(object({
+    instance_type = string
+  }))
 }

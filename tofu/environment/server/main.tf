@@ -3,6 +3,7 @@ module "network" {
   environment        = var.environment
   vpc_cidr           = var.vpc_cidr
   public_subnet_cidr = var.public_subnet_cidr
+  availability_zone  = var.availability_zone
 }
 
 module "role" {
@@ -20,7 +21,7 @@ module "security" {
 
 module "compute" {
   source               = "../../modules/compute"
-  instance_type        = var.instance_type
+  instances            = var.instances
   environment          = var.environment
   public_subnet_id     = module.network.subnet_id
   iam_instance_profile = module.role.instance_profile_name
