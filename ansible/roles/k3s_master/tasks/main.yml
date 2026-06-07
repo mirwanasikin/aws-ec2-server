@@ -1,0 +1,78 @@
+- name: Get IMDSv2 token
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/api/token # checkov:skip=CKV2_ANSIBLE_1: AWS IMDS endpoint does not support HTTPS by design
+    method: PUT
+    headers:
+      X-aws-ec2-metadata-token-ttl-seconds: "21600"
+    return_content: true
+  register: k3s_master_imds_token
+
+- name: Get public IP from metadata
+  ansible.builtin.uri:
+    url: http://169.254.169.254/latest/meta-data/public-ipv4 # checkov:skip=CKV2_ANSIBLE_1: AWS IMDS endpoint does not support HTTPS by design
+    headers:
+      X-aws-ec2-metadata-token: "{{ k3s_master_imds_token.content }}"
+    return_content: true
+  register: k3s_master_ec2_public_ip
+
+- name: Download k3s install script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh
+    mode: "0755"
+
+- name: Install k3s
+  ansible.builtin.shell: # noqa: command-instead-of-shell
+    cmd: /tmp/k3s-install.sh
+    creates: /usr/local/bin/k3s
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_master_version }}"
+    INSTALL_K3S_EXEC: "{{ k3s_master_server_args }} --tls-san {{ k3s_master_ec2_public_ip.content }}"
+  notify: Restart k3s
+
+- name: Wait for k3s
+  ansible.builtin.wait_for:
+    path: /etc/rancher/k3s/k3s.yaml
+    timeout: 60
+
+- name: Ensure k3s service is started and enabled
+  ansible.builtin.systemd:
+    name: k3s
+    state: started
+    enabled: true
+
+- name: Rename context, cluster, and user in kubeconfig
+  ansible.builtin.shell: # noqa: command-instead-of-shell
+    cmd: |
+      CONTEXT=$(KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl config current-context)
+      if [ "$CONTEXT" != "{{ inventory_hostname }}" ]; then
+        KUBECONFIG=/etc/rancher/k3s/k3s.yaml kubectl config rename-context "$CONTEXT" {{ inventory_hostname }}
+        KUBECONFIG=/etc/rancher/k3s/k3s.yaml sed -i \
+          's/: default/: {{ inventory_hostname }}/g' \
+          /etc/rancher/k3s/k3s.yaml
+      fi
+  changed_when: false
+
+- name: Fetch local kubeconfig
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~/.kube/configs/{{ inventory_hostname }}.yaml
+    flat: true
+
+- name: Fix server IP
+  ansible.builtin.replace:
+    path: "{{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml"
+    regexp: "https://.*:6443"
+    replace: "https://{{ k3s_master_ec2_public_ip.content }}:6443"
+  delegate_to: localhost
+  become: false
+
+- name: Get k3s node token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: k3s_master_token
+
+- name: Set token as fact
+  ansible.builtin.set_fact:
+    k3s_master_node_token: "{{ k3s_master_token.content | b64decode | trim }}"
+    cacheable: true

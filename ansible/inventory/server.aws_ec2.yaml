@@ -2,9 +2,13 @@ plugin: amazon.aws.aws_ec2
 regions:
   - ap-southeast-1
 hostnames:
-  - instance-id
+  - tag:Name
 filters:
   tag:Env: server
 compose:
   ansible_host: instance_id
   ansible_aws_ssm_instance_id: instance_id
+keyed_groups:
+  - key: tags.Role
+    prefix: ""
+    separator: ""

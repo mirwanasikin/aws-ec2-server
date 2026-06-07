@@ -145,7 +145,7 @@ This is handled by the `amazon.aws` community collection with a dynamic inventor
 ## Todo
 
 - [x] Multiple instances using `for_each` in OpenTofu modules
-- [ ] k3s installation on EC2
+- [x] k3s installation on EC2
 - [ ] Cloudflare integration for SSL
 - [ ] Monitoring stack (Prometheus, Grafana, Node Exporter)
 - [ ] Application deployment (Nextcloud or Flask demo app)
