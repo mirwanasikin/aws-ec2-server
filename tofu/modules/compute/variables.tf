@@ -22,5 +22,6 @@ variable "instances" {
   type = map(object({
     instance_type = string
     az            = string
+    role          = string
   }))
 }

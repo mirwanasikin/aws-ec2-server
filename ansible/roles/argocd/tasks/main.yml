@@ -1,0 +1,29 @@
+- name: Create ArgoCD namespace
+  ansible.builtin.shell:
+    cmd: >
+      kubectl --kubeconfig {{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml
+      create namespace {{ argocd_namespace }}
+  delegate_to: localhost
+  become: false
+  failed_when: false
+  changed_when: true
+
+- name: Install ArgoCD
+  ansible.builtin.shell:
+    cmd: >
+      kubectl --kubeconfig {{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml
+      apply -n {{ argocd_namespace }} --server-side
+      -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
+- name: Wait for ArgoCD server to be ready
+  ansible.builtin.shell:
+    cmd: >
+      kubectl --kubeconfig {{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml
+      rollout status deployment/argocd-server -n {{ argocd_namespace }}
+      --timeout=120s
+  delegate_to: localhost
+  become: false
+  changed_when: false

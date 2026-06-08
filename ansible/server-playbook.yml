@@ -2,6 +2,20 @@
   hosts: aws_ec2
   gather_facts: true
   become: true
-
   roles:
     - base_setup
+
+- name: Setup Control Plane
+  hosts: master
+  gather_facts: true
+  become: true
+  roles:
+    - k3s_master
+    - argocd
+
+- name: Setup Worker Node
+  hosts: worker
+  gather_facts: true
+  become: true
+  roles:
+    - k3s_worker

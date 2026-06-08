@@ -44,5 +44,6 @@ resource "aws_instance" "main" {
   tags = {
     Name = "${var.environment}-compute-${each.key}"
     Env  = var.environment
+    Role = each.value.role
   }
 }
