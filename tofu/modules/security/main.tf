@@ -29,6 +29,14 @@ resource "aws_security_group" "sg_server" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Port for Flannel"
+    from_port   = 8472
+    to_port     = 8472
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0

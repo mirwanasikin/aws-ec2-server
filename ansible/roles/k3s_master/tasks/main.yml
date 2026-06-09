@@ -28,7 +28,6 @@
   environment:
     INSTALL_K3S_VERSION: "{{ k3s_master_version }}"
     INSTALL_K3S_EXEC: "{{ k3s_master_server_args }} --tls-san {{ k3s_master_ec2_public_ip.content }}"
-  notify: Restart k3s
 
 - name: Wait for k3s
   ansible.builtin.wait_for:
