@@ -1,4 +1,0 @@
-- name: Restart k3s agent # ← kapital R
-  ansible.builtin.systemd:
-    name: k3s-agent
-    state: restarted
