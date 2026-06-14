@@ -1,0 +1,37 @@
+- name: Install Sealed Secrets controller
+  ansible.builtin.shell:
+    cmd: >
+      kubectl --kubeconfig {{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml
+      apply -f https://github.com/bitnami-labs/sealed-secrets/releases/{{ sealed_secrets_version }}/download/controller.yaml
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
+- name: Wait for Sealed Secrets controller to be ready
+  ansible.builtin.shell:
+    cmd: >
+      kubectl --kubeconfig {{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml
+      rollout status deployment/sealed-secrets-controller -n {{ sealed_secrets_namespace }}
+      --timeout=120s
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
+- name: Fetch Sealed Secrets public cert
+  ansible.builtin.shell:
+    cmd: >
+      kubeseal --fetch-cert
+      --kubeconfig {{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml
+      --controller-namespace {{ sealed_secrets_namespace }}
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  register: sealed_secrets_cert
+
+- name: Save public cert locally
+  ansible.builtin.copy:
+    content: "{{ sealed_secrets_cert.stdout }}"
+    dest: "{{ sealed_secrets_cert_path }}"
+    mode: "0644"
+  delegate_to: localhost
+  become: false
