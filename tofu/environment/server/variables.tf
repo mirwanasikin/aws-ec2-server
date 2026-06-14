@@ -16,6 +16,20 @@ variable "public_subnets" {
   }))
 }
 
+variable "private_subnets" {
+  description = "CIDR for Private Subnet"
+  type = map(object({
+    cidr = string
+    az   = string
+  }))
+}
+
+variable "nat_gateway_subnet_key" {
+  description = "Key of public subnet where NAT Gateway will be placed"
+  type        = string
+
+}
+
 variable "ansible_bucket_name" {
   description = "Ansible Bucket for SSM"
   type        = string

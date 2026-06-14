@@ -3,13 +3,18 @@ variable "environment" {
   type        = string
 }
 
-variable "public_subnet_id" {
-  description = "Public Subnet for EC2"
+variable "private_subnet_id" {
+  description = "Private Subnet for EC2"
   type        = map(string)
 }
 
-variable "security_group_id" {
-  description = "security Group for EC2"
+variable "sg_compute_id" {
+  description = "Security Group for EC2 allows trafic from ALB"
+  type        = string
+}
+
+variable "sg_k3s_internal_id" {
+  description = "Security Group for K3s internal communication"
   type        = string
 }
 
