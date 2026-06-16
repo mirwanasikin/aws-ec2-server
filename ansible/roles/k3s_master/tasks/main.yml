@@ -7,13 +7,13 @@
     return_content: true
   register: k3s_master_imds_token
 
-- name: Get public IP from metadata
+- name: Get private IP from metadata
   ansible.builtin.uri:
-    url: http://169.254.169.254/latest/meta-data/public-ipv4 # checkov:skip=CKV2_ANSIBLE_1: AWS IMDS endpoint does not support HTTPS by design
+    url: http://169.254.169.254/latest/meta-data/local-ipv4 # checkov:skip=CKV2_ANSIBLE_1: AWS IMDS endpoint does not support HTTPS by design
     headers:
       X-aws-ec2-metadata-token: "{{ k3s_master_imds_token.content }}"
     return_content: true
-  register: k3s_master_ec2_public_ip
+  register: k3s_master_ec2_private_ip
 
 - name: Download k3s install script
   ansible.builtin.get_url:
@@ -27,7 +27,7 @@
     creates: /usr/local/bin/k3s
   environment:
     INSTALL_K3S_VERSION: "{{ k3s_master_version }}"
-    INSTALL_K3S_EXEC: "{{ k3s_master_server_args }} --tls-san {{ k3s_master_ec2_public_ip.content }}"
+    INSTALL_K3S_EXEC: "{{ k3s_master_server_args }} --tls-san {{ k3s_master_ec2_private_ip.content }}"
 
 - name: Wait for k3s
   ansible.builtin.wait_for:
@@ -62,7 +62,7 @@
   ansible.builtin.replace:
     path: "{{ lookup('env', 'HOME') }}/.kube/configs/{{ inventory_hostname }}.yaml"
     regexp: "https://.*:6443"
-    replace: "https://{{ k3s_master_ec2_public_ip.content }}:6443"
+    replace: "https://{{ k3s_master_ec2_private_ip.content }}:6443"
   delegate_to: localhost
   become: false
 
